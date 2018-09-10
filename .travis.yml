@@ -1,0 +1,26 @@
+
+services:
+  - docker
+
+env:
+  global:
+    - ALGERNON_VERSION=${ALGERNON_VERSION:-1.10.1}
+    - BUILD_DATE=$(date +"%Y-%m-%d")
+
+jobs:
+  include:
+
+    - stage: build
+      script:
+        - make
+
+#    - stage: build and push image
+#      script:
+#        - make
+#        - docker tag ${DOCKER_USERNAME}/docker-algernon:${ICINGA2_VERSION}-master    ${DOCKER_USERNAME}/docker-algernon:latest-master
+#        - docker tag ${DOCKER_USERNAME}/docker-algernon:${ICINGA2_VERSION}-satellite ${DOCKER_USERNAME}/docker-algernon:latest-satellite
+#        - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+#        - docker push ${DOCKER_USERNAME}/docker-algernon:latest-master
+#        - docker push ${DOCKER_USERNAME}/docker-algernon:latest-satellite
+#        - docker logout
+#
