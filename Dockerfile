@@ -11,6 +11,7 @@ ENV \
   TZ='Europe/Berlin' \
   GOPATH=/opt/go \
   GOMAXPROCS=4 \
+  GOOS=linux \
   GOARCH=amd64
 
 # ---------------------------------------------------------------------------------------
@@ -25,7 +26,7 @@ RUN \
   echo "export BUILD_TYPE=${BUILD_TYPE}" >> /etc/profile.d/algernon.sh
 
 RUN \
-  go get github.com/xyproto/algernon || true
+  go get github.com/xyproto/algernon
 
 RUN \
   cd ${GOPATH}/src/github.com/xyproto/algernon && \
@@ -34,31 +35,40 @@ RUN \
     git checkout tags/${ALGERNON_VERSION} 2> /dev/null ; \
   fi && \
   ALGERNON_VERSION=$(git describe --tags --always | sed 's/^v//') && \
+  echo " => go version $(go version)" && \
+  echo " => build version ${ALGERNON_VERSION}" && \
   echo "export ALGERNON_VERSION=${ALGERNON_VERSION}" >> /etc/profile.d/algernon.sh
 
-# remove external refernces to google
-RUN \
-  cd ${GOPATH}/src/github.com/xyproto/algernon && \
-  result=$(grep -r "fonts.googleapis.com" *) && \
-  if [[ $(echo -e "${result}" | wc -l) -gt 0 ]] ; \
-  then \
-    echo "found $(echo -e "${result}" | wc -l) external references to fonts.googleapis.com" && \
-    sed -i -e "/fonts\.googleapis\.com/d"    engine/prettyerror.go ; \
-    sed -i -e "s|'Lato',||g"                 engine/prettyerror.go ; \
-    sed -i -e 's|@import url(//fonts.googleapis.com/css?family=.*);||g' samples/*/style.gcss ; \
-    sed -i -e 's|'Lato',||g'                                            samples/*/style.gcss ; \
-    sed -i -e 's|@import url(//fonts.googleapis.com/css?family=.*);||g' themes/data.go ; \
-    sed -i -e "s|'Lato',||g"                                            themes/data.go ; \
-  fi
+## remove external refernces to google
+#RUN \
+#  cd ${GOPATH}/src/github.com/xyproto/algernon && \
+#  result=$(grep -r "fonts.googleapis.com" *) && \
+#  if [[ $(echo -e "${result}" | wc -l) -gt 0 ]] ; \
+#  then \
+#    echo "found $(echo -e "${result}" | wc -l) external references to fonts.googleapis.com" && \
+#    sed -i -e "/fonts\.googleapis\.com/d"    engine/prettyerror.go ; \
+#    sed -i -e "s|'Lato',||g"                 engine/prettyerror.go ; \
+#    sed -i -e 's|@import url(//fonts.googleapis.com/css?family=.*);||g' samples/*/style.gcss ; \
+#    sed -i -e 's|'Lato',||g'                                            samples/*/style.gcss ; \
+#    #sed -i -e 's|@import url(//fonts.googleapis.com/css?family=.*);||g' themes/data.go ; \
+#    #sed -i -e "s|'Lato',||g"                                            themes/data.go ; \
+#  fi
 
 RUN \
-  cd ${GOPATH}/src/github.com/xyproto/algernon &&\
+  cd ${GOPATH}/src/github.com/xyproto/algernon && \
   export name=algernon && \
   export version=$(grep -i version main.go | head -1 | cut -d' ' -f4 | cut -d'"' -f1) && \
-  GOOS=linux go build -o $name.linux && \
+  if [[ "$(go version | grep '1.10')" ]] ; then \
+    echo "run go build ..." && \
+    go build  ; \
+  else \
+    GO111MODULE=on go mod verify && \
+    GO111MODULE=on go build && \
+    GO111MODULE=on go test ; \
+  fi && \
   mkdir /tmp/algernon && \
-  cp -v $name.linux /tmp/algernon/$name && \
-  cp -arv samples /tmp/algernon/
+  cp     ${GOPATH}/src/github.com/xyproto/algernon/algernon /tmp/algernon/ && \
+  cp -ar ${GOPATH}/src/github.com/xyproto/algernon/samples  /tmp/algernon/
 
 CMD [ "/bin/sh" ]
 

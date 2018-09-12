@@ -1,5 +1,6 @@
 
 include env_make
+
 NS       = bodsch
 VERSION ?= latest
 
@@ -10,7 +11,7 @@ INSTANCE = default
 BUILD_DATE      := $(shell date +%Y-%m-%d)
 BUILD_VERSION   := $(shell date +%y%m)
 BUILD_TYPE      ?= stable
-ALGERNON_VERSION ?= 1.10.1
+ALGERNON_VERSION ?= 1.11.0
 
 .PHONY: build push shell run start stop rm release
 
@@ -23,6 +24,7 @@ params:
 
 build:
 	docker build \
+		--rm \
 		--build-arg BUILD_DATE=$(BUILD_DATE) \
 		--build-arg BUILD_VERSION=$(BUILD_VERSION) \
 		--build-arg BUILD_TYPE=$(BUILD_TYPE) \
@@ -71,6 +73,7 @@ exec:
 
 start:
 	docker run \
+		--rm \
 		--detach \
 		--name $(NAME)-$(INSTANCE) \
 		$(PORTS) \

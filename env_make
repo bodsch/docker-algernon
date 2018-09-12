@@ -1,0 +1,7 @@
+PORTS = \
+  --publish 8080:8080
+
+VOLUMES = \
+  --volume `pwd`/data:/data/localhost/:ro
+
+ENV =
