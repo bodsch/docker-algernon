@@ -14,13 +14,12 @@ jobs:
       script:
         - make
 
-#    - stage: build and push image
-#      script:
-#        - make
-#        - docker tag ${DOCKER_USERNAME}/docker-algernon:${ICINGA2_VERSION}-master    ${DOCKER_USERNAME}/docker-algernon:latest-master
-#        - docker tag ${DOCKER_USERNAME}/docker-algernon:${ICINGA2_VERSION}-satellite ${DOCKER_USERNAME}/docker-algernon:latest-satellite
-#        - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
-#        - docker push ${DOCKER_USERNAME}/docker-algernon:latest-master
-#        - docker push ${DOCKER_USERNAME}/docker-algernon:latest-satellite
-#        - docker logout
-#
+    - stage: build and push image
+      script:
+        - make
+        - docker tag ${DOCKER_USERNAME}/docker-algernon:${ALGERNON_VERSION} ${DOCKER_USERNAME}/docker-algernon:latest
+        - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+        - docker push ${DOCKER_USERNAME}/docker-algernon:${ALGERNON_VERSION}
+        - docker push ${DOCKER_USERNAME}/docker-algernon:latest
+        - docker logout
+
