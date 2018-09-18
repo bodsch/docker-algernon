@@ -63,7 +63,9 @@ CMD [ "/bin/sh" ]
 FROM alpine:3.8
 
 RUN \
-  apk --quiet --no-cache update && \
+  apk update --quiet --no-cache && \
+  apk add    --quiet \
+    curl && \
   if [ -f /etc/profile.d/algernon.sh ] ; then . /etc/profile; fi && \
   mkdir /etc/algernon && \
   rm -rf \
