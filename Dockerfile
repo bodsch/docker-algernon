@@ -39,21 +39,6 @@ RUN \
   echo " => build version ${ALGERNON_VERSION}" && \
   echo "export ALGERNON_VERSION=${ALGERNON_VERSION}" >> /etc/profile.d/algernon.sh
 
-## remove external refernces to google
-#RUN \
-#  cd ${GOPATH}/src/github.com/xyproto/algernon && \
-#  result=$(grep -r "fonts.googleapis.com" *) && \
-#  if [[ $(echo -e "${result}" | wc -l) -gt 0 ]] ; \
-#  then \
-#    echo "found $(echo -e "${result}" | wc -l) external references to fonts.googleapis.com" && \
-#    sed -i -e "/fonts\.googleapis\.com/d"    engine/prettyerror.go ; \
-#    sed -i -e "s|'Lato',||g"                 engine/prettyerror.go ; \
-#    sed -i -e 's|@import url(//fonts.googleapis.com/css?family=.*);||g' samples/*/style.gcss ; \
-#    sed -i -e 's|'Lato',||g'                                            samples/*/style.gcss ; \
-#    #sed -i -e 's|@import url(//fonts.googleapis.com/css?family=.*);||g' themes/data.go ; \
-#    #sed -i -e "s|'Lato',||g"                                            themes/data.go ; \
-#  fi
-
 RUN \
   cd ${GOPATH}/src/github.com/xyproto/algernon && \
   export name=algernon && \
@@ -62,17 +47,16 @@ RUN \
     echo "run go build ..." && \
     go build  ; \
   else \
-    GO111MODULE=on go mod verify && \
-    GO111MODULE=on go build && \
-    GO111MODULE=on go test ; \
+    export GO111MODULE=on && \
+    go mod verify && \
+    go build && \
+    go test ; \
   fi && \
   mkdir /tmp/algernon && \
   cp     ${GOPATH}/src/github.com/xyproto/algernon/algernon /tmp/algernon/ && \
   cp -ar ${GOPATH}/src/github.com/xyproto/algernon/samples  /tmp/algernon/
 
 CMD [ "/bin/sh" ]
-
-# ---------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------
 
@@ -101,6 +85,8 @@ HEALTHCHECK \
   CMD curl --silent --fail localhost:8080 || exit 1
 
 CMD ["/usr/bin/algernon", "--nobanner", "--domain", "--server", "--cachesize", "67108864", "--dev", "--debug", "--httponly", "--nodb", "--addr=:8080", "--dir=/data"]
+
+# ---------------------------------------------------------------------------------------
 
 EXPOSE 8080
 
