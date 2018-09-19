@@ -14,13 +14,6 @@ jobs:
       script:
         - make
 
-    - stage: build and test
-      script:
-        - make
-        - make start
-        - curl --silent localhost:8080 | grep -c Algernon
-        - make stop
-
     - stage: build and push image
       script:
         - make
