@@ -86,7 +86,7 @@ HEALTHCHECK \
   --retries=12 \
   CMD curl --silent --fail localhost:8080 || exit 1
 
-CMD ["/usr/bin/algernon", "--nobanner", "--domain", "--server", "--cachesize", "67108864", "--dev", "--debug", "--httponly", "--nodb", "--addr=:8080", "--dir=/data"]
+CMD [ "/usr/bin/algernon", "--simple", "--addr=:8080", "--dir=/data", "--cache=on", "--statcache"]
 
 # ---------------------------------------------------------------------------------------
 

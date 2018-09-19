@@ -2,6 +2,6 @@ PORTS = \
   --publish 8080:8080
 
 VOLUMES = \
-  --volume `pwd`/data:/data/localhost/:ro
+  --volume `pwd`/data:/data/:ro
 
 ENV =
