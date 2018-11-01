@@ -62,19 +62,18 @@ CMD [ "/bin/sh" ]
 
 FROM alpine:3.8
 
+COPY --from=builder /etc/profile.d/algernon.sh /etc/profile.d/algernon.sh
+COPY --from=builder /tmp/algernon/algernon     /usr/bin/algernon
+COPY --from=builder /tmp/algernon/samples      /etc/algernon/samples
+
 RUN \
   apk update --quiet --no-cache && \
   apk add    --quiet \
     curl && \
-  if [ -f /etc/profile.d/algernon.sh ] ; then . /etc/profile; fi && \
-  mkdir /etc/algernon && \
+  . /etc/profile && \
   rm -rf \
     /tmp/* \
     /var/cache/apk/*
-
-COPY --from=builder /etc/profile.d/algernon.sh /etc/profile.d/algernon.sh
-COPY --from=builder /tmp/algernon/algernon /usr/bin/algernon
-COPY --from=builder /tmp/algernon/samples  /etc/algernon/samples
 
 VOLUME [ "/algernon", "/data" ]
 

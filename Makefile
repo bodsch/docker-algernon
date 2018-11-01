@@ -11,7 +11,7 @@ INSTANCE = default
 BUILD_DATE      := $(shell date +%Y-%m-%d)
 BUILD_VERSION   := $(shell date +%y%m)
 BUILD_TYPE      ?= stable
-ALGERNON_VERSION ?= 1.11.0
+ALGERNON_VERSION ?= 1.12.0
 
 .PHONY: build push shell run start stop rm release
 
