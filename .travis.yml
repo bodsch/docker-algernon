@@ -4,7 +4,7 @@ services:
 
 env:
   global:
-    - ALGERNON_VERSION=${ALGERNON_VERSION:-1.11.0}
+    - ALGERNON_VERSION=${ALGERNON_VERSION:-1.12.1}
     - BUILD_DATE=$(date +"%Y-%m-%d")
 
 jobs:

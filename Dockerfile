@@ -51,7 +51,9 @@ RUN \
     go mod verify && \
     go build && \
     go test ; \
-  fi && \
+  fi
+
+RUN \
   mkdir /tmp/algernon && \
   cp     ${GOPATH}/src/github.com/xyproto/algernon/algernon /tmp/algernon/ && \
   cp -ar ${GOPATH}/src/github.com/xyproto/algernon/samples  /tmp/algernon/
@@ -104,3 +106,4 @@ LABEL \
   org.label-schema.schema-version="1.0" \
   com.microscaling.docker.dockerfile="/Dockerfile" \
   com.microscaling.license="GNU Lesser General Public License v3.0"
+
