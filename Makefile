@@ -1,95 +1,45 @@
+export GIT_SHA1          := $(shell git rev-parse --short HEAD)
+export DOCKER_IMAGE_NAME := algernon
+export DOCKER_NAME_SPACE := ${USER}
+export DOCKER_VERSION    ?= latest
+export BUILD_DATE        := $(shell date +%Y-%m-%d)
+export BUILD_VERSION     := $(shell date +%y%m)
+export BUILD_TYPE        ?= stable
+export ALGERNON_VERSION  ?= 1.12.1
 
-include env_make
 
-NS       = bodsch
-VERSION ?= latest
-
-REPO     = docker-algernon
-NAME     = algernon
-INSTANCE = default
-
-BUILD_DATE      := $(shell date +%Y-%m-%d)
-BUILD_VERSION   := $(shell date +%y%m)
-BUILD_TYPE      ?= stable
-ALGERNON_VERSION ?= 1.12.1
-
-.PHONY: build push shell run start stop rm release
+.PHONY: build shell run exec start stop clean compose-file
 
 default: build
-
-params:
-	@echo ""
-	@echo " BUILD_DATE     : $(BUILD_DATE)"
-	@echo ""
 
 build:
-	docker build \
-		--rm \
-		--build-arg BUILD_DATE=$(BUILD_DATE) \
-		--build-arg BUILD_VERSION=$(BUILD_VERSION) \
-		--build-arg BUILD_TYPE=$(BUILD_TYPE) \
-		--build-arg ALGERNON_VERSION=$(ALGERNON_VERSION) \
-		--tag $(NS)/$(REPO):$(ALGERNON_VERSION) .
-
-clean:
-	docker rmi \
-		--force \
-		`docker images -q $(NS)/$(REPO) | uniq`
-
-history:
-	docker history \
-		$(NS)/$(REPO):$(ALGERNON_VERSION)
-
-push:
-	docker push \
-		$(NS)/$(REPO):$(ALGERNON_VERSION)
+	@hooks/build
 
 shell:
-	docker run \
-		--rm \
-		--name $(NAME)-$(INSTANCE) \
-		--interactive \
-		--tty \
-		$(VOLUMES) \
-		$(ENV) \
-		$(NS)/$(REPO):$(ALGERNON_VERSION) \
-		/bin/sh
+	@hooks/shell
 
 run:
-	docker run \
-		--rm \
-		--name $(NAME)-$(INSTANCE) \
-		$(PORTS) \
-		$(VOLUMES) \
-		$(ENV) \
-		$(NS)/$(REPO):$(ALGERNON_VERSION)
+	@hooks/run
 
 exec:
-	docker exec \
-		--interactive \
-		--tty \
-		$(NAME)-$(INSTANCE) \
-		/bin/sh
+	@hooks/exec
 
 start:
-	docker run \
-		--rm \
-		--detach \
-		--name $(NAME)-$(INSTANCE) \
-		$(PORTS) \
-		$(VOLUMES) \
-		$(ENV) \
-		$(NS)/$(REPO):$(ALGERNON_VERSION)
+	@hooks/start
 
 stop:
-	docker stop \
-		$(NAME)-$(INSTANCE)
+	@hooks/stop
 
-rm:
-	docker rm \
-		$(NAME)-$(INSTANCE)
+clean:
+	@hooks/clean
 
-release: build
-	make push -e VERSION=$(ALGERNON_VERSION)
+compose-file:
+	@hooks/compose-file
 
-default: build
+linter:
+	@tests/linter.sh
+
+integration_test:
+	@tests/integration_test.sh
+
+test: linter integration_test

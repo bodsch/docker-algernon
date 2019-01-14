@@ -16,6 +16,7 @@ ENV \
 
 # ---------------------------------------------------------------------------------------
 
+# hadolint ignore=DL3008,DL3014,DL3015,DL3017,DL3018,DL3019,DL4005
 RUN \
   apk update  --quiet && \
   apk upgrade --quiet && \
@@ -28,8 +29,9 @@ RUN \
 RUN \
   go get github.com/xyproto/algernon
 
+WORKDIR cd ${GOPATH}/src/github.com/xyproto/algernon
+
 RUN \
-  cd ${GOPATH}/src/github.com/xyproto/algernon && \
   if [[ "${BUILD_TYPE}" = "stable" ]] ; then \
     echo "switch to stable Tag ${ALGERNON_VERSION}" && \
     git checkout tags/${ALGERNON_VERSION} 2> /dev/null ; \
@@ -40,7 +42,6 @@ RUN \
   echo "export ALGERNON_VERSION=${ALGERNON_VERSION}" >> /etc/profile.d/algernon.sh
 
 RUN \
-  cd ${GOPATH}/src/github.com/xyproto/algernon && \
   export name=algernon && \
   export version=$(grep -i version main.go | head -1 | cut -d' ' -f4 | cut -d'"' -f1) && \
   if [[ "$(go version | grep '1.10')" ]] ; then \
@@ -57,8 +58,6 @@ RUN \
   mkdir /tmp/algernon && \
   cp     ${GOPATH}/src/github.com/xyproto/algernon/algernon /tmp/algernon/ && \
   cp -ar ${GOPATH}/src/github.com/xyproto/algernon/samples  /tmp/algernon/
-
-CMD [ "/bin/sh" ]
 
 # ---------------------------------------------------------------------------------------
 
@@ -77,9 +76,11 @@ RUN \
     /tmp/* \
     /var/cache/apk/*
 
-VOLUME [ "/algernon", "/data" ]
+VOLUME ["/algernon", "/data"]
 
 WORKDIR /data
+
+CMD ["/usr/bin/algernon", "--simple", "--addr=:8080", "--dir=/data", "--cache=on", "--statcache"]
 
 HEALTHCHECK \
   --interval=5s \
@@ -87,23 +88,24 @@ HEALTHCHECK \
   --retries=12 \
   CMD curl --silent --fail localhost:8080 || exit 1
 
-CMD [ "/usr/bin/algernon", "--simple", "--addr=:8080", "--dir=/data", "--cache=on", "--statcache"]
-
 # ---------------------------------------------------------------------------------------
 
 EXPOSE 8080
 
 LABEL \
-  version="${BUILD_VERSION}" \
+  version=${BUILD_VERSION} \
   maintainer="Bodo Schulz <bodo@boone-schulz.de>" \
   org.label-schema.build-date=${BUILD_DATE} \
-  org.label-schema.name="Grafana Docker Image" \
-  org.label-schema.description="" \
-  org.label-schema.url="" \
-  org.label-schema.vcs-url="" \
+  org.label-schema.name="Jolokia Docker Image" \
+  org.label-schema.description="Inofficial Algernon Docker Image" \
+  org.label-schema.url="https://algernon.roboticoverlords.org/" \
+  org.label-schema.vcs-url="https://github.com/bodsch/docker-algernon" \
+  org.label-schema.vcs-ref=${VCS_REF} \
   org.label-schema.vendor="Bodo Schulz" \
   org.label-schema.version=${ALGERNON_VERSION} \
   org.label-schema.schema-version="1.0" \
   com.microscaling.docker.dockerfile="/Dockerfile" \
-  com.microscaling.license="GNU Lesser General Public License v3.0"
+  com.microscaling.license=""
+
+# ---------------------------------------------------------------------------------------
 
