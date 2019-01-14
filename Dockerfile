@@ -29,7 +29,7 @@ RUN \
 RUN \
   go get github.com/xyproto/algernon
 
-WORKDIR cd ${GOPATH}/src/github.com/xyproto/algernon
+WORKDIR ${GOPATH}/src/github.com/xyproto/algernon
 
 RUN \
   if [[ "${BUILD_TYPE}" = "stable" ]] ; then \
