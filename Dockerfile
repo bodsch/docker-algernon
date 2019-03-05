@@ -50,8 +50,7 @@ RUN \
   else \
     export GO111MODULE=on && \
     go mod verify && \
-    go build && \
-    go test ; \
+    go build ; \
   fi
 
 RUN \
@@ -61,7 +60,7 @@ RUN \
 
 # ---------------------------------------------------------------------------------------
 
-FROM alpine:3.8
+FROM alpine:3.9
 
 COPY --from=builder /etc/profile.d/algernon.sh /etc/profile.d/algernon.sh
 COPY --from=builder /tmp/algernon/algernon     /usr/bin/algernon
