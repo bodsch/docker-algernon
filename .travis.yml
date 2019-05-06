@@ -1,35 +1,27 @@
-
 services:
-  - docker
-
+- docker
 env:
   global:
-    - ALGERNON_VERSION=${ALGERNON_VERSION:-1.12.1}
-    - BUILD_DATE=$(date +"%Y-%m-%d")
-
+  - ALGERNON_VERSION=${ALGERNON_VERSION:-1.12.1}
+  - BUILD_DATE=$(date +"%Y-%m-%d")
+  - secure: onfC0BSg+TaF8uogC030PTJeF/FCLrC5zGbpAoAmCGRzNL67XqYlbp2xYqeZQLVFeMsGLTTE9CdniRCTBsWX9QXOv8X1TDZRcI3q4MSBMcfx3oCzlfwEzYGIstR+ij3dujwJdYL7vi/d6d62SKNCo/rxr5dkYn2be1gf9GjfVu3N0+UVQjxYF1udKmRwX/1wxJFGy5i79CP6MqN1+q4jK93/02rDNfLcyAmEVIT3XYoBNQqNbiUurbCn8prleCYStwyi/SnOaOL3Z5BI4rSWepUIvN7+1FJy4GhTg7frlMsdfFlz6uZOZGt2HZQ8fjZ2TcLA6NPr1QWftr6+nzubEze++tV4k/oYiJx2F5V4c6DZDaGbFtaYhvGfffXRCpJWLmk7UcZrF1ampxC/Z4jqIoGyaRyg6r/unGVR/514WzkwwirkTxvMwFbRYn3siBK0iF3WiKTS9EJNZg86HRKfFssm6QmvN0a+tKR56V73TNXL57aBrAsSK5zlvOSgFC2xfVqSV/y/hhiAXmm5hlkDJHQjTogm/E5uLW+scGawbr3l6LRZKEf2v4hr17aKrVw0DqfVZIFWRHQPu3Haii5fKbTy+z94fdX0mKgrqgx8M4a9zzoGzbt90oylOw/sGBpM+JpJhwnAbuR88SrvWdqY2iiubJc7f7Ed8N+VoaVKFlw=
 jobs:
   include:
-
-    - stage: build
-      script:
-        - make
-
-    - stage: build and test
-      script:
-        - make build
-        - make start
-        - make test
-        - make stop
-
-    - stage: build and push image
-      script:
-        - make
-        - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
-        #
-        - docker tag  ${USER}/algernon:latest ${DOCKER_USERNAME}/docker-algernon:latest
-        - docker push ${DOCKER_USERNAME}/docker-algernon:latest
-        #
-        - docker tag  ${DOCKER_USERNAME}/docker-algernon:latest ${DOCKER_USERNAME}/docker-algernon:${ALGERNON_VERSION}
-        - docker push ${DOCKER_USERNAME}/docker-algernon:${ALGERNON_VERSION}
-        - docker logout
-
+  - stage: build
+    script:
+    - make
+  - stage: build and test
+    script:
+    - make build
+    - make start
+    - make test
+    - make stop
+  - stage: build and push image
+    script:
+    - make
+    - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+    - docker tag  ${USER}/algernon:latest ${DOCKER_USERNAME}/docker-algernon:latest
+    - docker push ${DOCKER_USERNAME}/docker-algernon:latest
+    - docker tag  ${DOCKER_USERNAME}/docker-algernon:latest ${DOCKER_USERNAME}/docker-algernon:${ALGERNON_VERSION}
+    - docker push ${DOCKER_USERNAME}/docker-algernon:${ALGERNON_VERSION}
+    - docker logout
