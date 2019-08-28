@@ -1,6 +1,7 @@
 
 FROM golang:1-alpine as builder
 
+ARG VCS_REF
 ARG BUILD_DATE
 ARG BUILD_VERSION
 ARG BUILD_TYPE=stable
@@ -12,7 +13,8 @@ ENV \
   GOPATH=/opt/go \
   GOMAXPROCS=4 \
   GOOS=linux \
-  GOARCH=amd64
+  GOARCH=amd64 \
+  name=algernon
 
 # ---------------------------------------------------------------------------------------
 
@@ -21,7 +23,9 @@ RUN \
   apk update  --quiet && \
   apk upgrade --quiet && \
   apk add     --quiet \
-    ca-certificates curl g++ git make && \
+    ca-certificates curl g++ git make
+
+RUN \
   echo "export TZ=${TZ}"                  > /etc/profile.d/algernon.sh && \
   echo "export BUILD_DATE=${BUILD_DATE}" >> /etc/profile.d/algernon.sh && \
   echo "export BUILD_TYPE=${BUILD_TYPE}" >> /etc/profile.d/algernon.sh
@@ -32,19 +36,25 @@ RUN \
 WORKDIR ${GOPATH}/src/github.com/xyproto/algernon
 
 RUN \
-  if [[ "${BUILD_TYPE}" = "stable" ]] ; then \
+  if [ "${BUILD_TYPE}" = "stable" ] ; then \
     echo "switch to stable Tag ${ALGERNON_VERSION}" && \
     git checkout tags/${ALGERNON_VERSION} 2> /dev/null ; \
-  fi && \
+  fi
+
+# hadolint ignore=DL4006,SC2153
+RUN \
   ALGERNON_VERSION=$(git describe --tags --always | sed 's/^v//') && \
   echo " => go version $(go version)" && \
   echo " => build version ${ALGERNON_VERSION}" && \
   echo "export ALGERNON_VERSION=${ALGERNON_VERSION}" >> /etc/profile.d/algernon.sh
 
+# hadolint ignore=DL4006,SC2155
 RUN \
-  export name=algernon && \
-  export version=$(grep -i version main.go | head -1 | cut -d' ' -f4 | cut -d'"' -f1) && \
-  if [[ "$(go version | grep '1.10')" ]] ; then \
+  export version=$(grep -i version main.go | head -1 | cut -d' ' -f4 | cut -d'"' -f1)
+
+# hadolint ignore=DL4006,SC2143
+RUN \
+  if [ "$(go version | grep --quiet '1.10')" ] ; then \
     echo "run go build ..." && \
     go build  ; \
   else \
@@ -66,11 +76,11 @@ COPY --from=builder /etc/profile.d/algernon.sh /etc/profile.d/algernon.sh
 COPY --from=builder /tmp/algernon/algernon     /usr/bin/algernon
 COPY --from=builder /tmp/algernon/samples      /etc/algernon/samples
 
+# hadolint ignore=DL3018
 RUN \
   apk update --quiet --no-cache && \
-  apk add    --quiet \
+  apk add    --quiet --no-cache \
     curl && \
-  . /etc/profile && \
   rm -rf \
     /tmp/* \
     /var/cache/apk/*

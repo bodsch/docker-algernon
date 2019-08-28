@@ -4,11 +4,25 @@ cd $(dirname $(readlink -f "$0"))
 
 ALGERNON_PORT=8080
 
+inspect() {
+
+  echo ""
+  echo "inspect needed containers"
+  for d in $(docker ps | tail -n +2 | awk  '{print($1)}')
+  do
+    # docker inspect --format "{{lower .Name}}" ${d}
+    c=$(docker inspect --format '{{with .State}} {{$.Name}} has pid {{.Pid}} {{end}}' ${d})
+    s=$(docker inspect --format '{{json .State.Health }}' ${d} | jq --raw-output .Status)
+
+    printf "%-40s - %s\n"  "${c}" "${s}"
+  done
+}
+
 # wait for
 #
 wait_for_algernon() {
 
-  echo "wait for algernon"
+  echo -e "\nwait for algernon"
 
   # now wait for ssh port
   RETRY=40
@@ -19,7 +33,7 @@ wait_for_algernon() {
     then
       break
     else
-      sleep 3s
+      sleep 5s
       RETRY=$(expr ${RETRY} - 1)
     fi
   done
@@ -29,25 +43,33 @@ wait_for_algernon() {
     echo "could not connect to the algernon instance"
     exit 1
   fi
+  echo ""
 }
 
 send_request() {
 
-  curl -I localhost:${ALGERNON_PORT}
+  curl \
+    --insecure \
+    --location \
+    --head \
+    localhost:${ALGERNON_PORT}
+
+  http_response_code=$(curl \
+      --write-out %{response_code} \
+      --silent \
+      --output /dev/null \
+      http://localhost:${ALGERNON_PORT})
+
+  if [[ ${http_response_code} -eq 200 ]]
+  then
+    echo "algernon is ready to serve"
+  fi
 }
 
 
-inspect() {
+running_containers=$(docker ps | tail -n +2 | grep -c algernon)
 
-  echo "inspect needed containers"
-  for d in $(docker ps | tail -n +2 | awk  '{print($1)}')
-  do
-    # docker inspect --format "{{lower .Name}}" ${d}
-    docker inspect --format '{{with .State}} {{$.Name}} has pid {{.Pid}} {{end}}' ${d}
-  done
-}
-
-if [[ $(docker ps | tail -n +2 | wc -l) -eq 1 ]]
+if [[ ${running_containers} -eq 1 ]]
 then
   inspect
   wait_for_algernon
