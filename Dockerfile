@@ -54,7 +54,7 @@ RUN \
 
 # hadolint ignore=DL4006,SC2143
 RUN \
-  if [ "$(go version | grep --quiet '1.10')" ] ; then \
+  if [ "$(go version | grep -q '1.10')" ] ; then \
     echo "run go build ..." && \
     go build  ; \
   else \
