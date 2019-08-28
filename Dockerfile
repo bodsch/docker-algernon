@@ -38,7 +38,7 @@ WORKDIR ${GOPATH}/src/github.com/xyproto/algernon
 RUN \
   if [ "${BUILD_TYPE}" = "stable" ] ; then \
     echo "switch to stable Tag ${ALGERNON_VERSION}" && \
-    git checkout tags/${ALGERNON_VERSION} 2> /dev/null ; \
+    git checkout "tags/${ALGERNON_VERSION}" 2> /dev/null ; \
   fi
 
 # hadolint ignore=DL4006,SC2153
@@ -65,8 +65,8 @@ RUN \
 
 RUN \
   mkdir /tmp/algernon && \
-  cp     ${GOPATH}/src/github.com/xyproto/algernon/algernon /tmp/algernon/ && \
-  cp -ar ${GOPATH}/src/github.com/xyproto/algernon/samples  /tmp/algernon/
+  cp     "${GOPATH}/src/github.com/xyproto/algernon/algernon" /tmp/algernon/ && \
+  cp -ar "${GOPATH}/src/github.com/xyproto/algernon/samples"  /tmp/algernon/
 
 # ---------------------------------------------------------------------------------------
 
