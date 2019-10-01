@@ -2,7 +2,7 @@
 
 set -e
 
-HADOLINT_VERSION='1.17.1'
+HADOLINT_VERSION='1.17.2'
 HADOLINT_PATH='/usr/local/bin/hadolint'
 
 if ! [[ -e "${HADOLINT_PATH}_${HADOLINT_VERSION}" ]]

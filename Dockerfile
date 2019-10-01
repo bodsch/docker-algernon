@@ -23,7 +23,7 @@ RUN \
   apk update  --quiet && \
   apk upgrade --quiet && \
   apk add     --quiet \
-    ca-certificates curl g++ git make
+    ca-certificates curl g++ git make upx
 
 RUN \
   echo "export TZ=${TZ}"                  > /etc/profile.d/algernon.sh && \
@@ -31,9 +31,14 @@ RUN \
   echo "export BUILD_TYPE=${BUILD_TYPE}" >> /etc/profile.d/algernon.sh
 
 RUN \
-  go get github.com/xyproto/algernon
+  echo " => go version $(go version)"
 
-WORKDIR ${GOPATH}/src/github.com/xyproto/algernon
+WORKDIR ${GOPATH}
+
+RUN \
+  git clone https://github.com/xyproto/algernon
+
+WORKDIR ${GOPATH}/algernon
 
 RUN \
   if [ "${BUILD_TYPE}" = "stable" ] ; then \
@@ -44,7 +49,6 @@ RUN \
 # hadolint ignore=DL4006,SC2153
 RUN \
   ALGERNON_VERSION=$(git describe --tags --always | sed 's/^v//') && \
-  echo " => go version $(go version)" && \
   echo " => build version ${ALGERNON_VERSION}" && \
   echo "export ALGERNON_VERSION=${ALGERNON_VERSION}" >> /etc/profile.d/algernon.sh
 
@@ -52,21 +56,26 @@ RUN \
 RUN \
   export version=$(grep -i version main.go | head -1 | cut -d' ' -f4 | cut -d'"' -f1)
 
+RUN \
+  go help module-auth
+
 # hadolint ignore=DL4006,SC2143
 RUN \
   if [ "$(go version | grep -q '1.10')" ] ; then \
     echo "run go build ..." && \
-    go build  ; \
-  else \
-    export GO111MODULE=on && \
-    go mod verify && \
     go build ; \
+  else \
+    go mod verify && \
+    go build -mod=vendor ; \
   fi
 
 RUN \
+  upx ${GOPATH}/algernon/algernon
+
+RUN \
   mkdir /tmp/algernon && \
-  cp     "${GOPATH}/src/github.com/xyproto/algernon/algernon" /tmp/algernon/ && \
-  cp -ar "${GOPATH}/src/github.com/xyproto/algernon/samples"  /tmp/algernon/
+  cp     "${GOPATH}/algernon/algernon" /tmp/algernon/ && \
+  cp -ar "${GOPATH}/algernon/samples"  /tmp/algernon/
 
 # ---------------------------------------------------------------------------------------
 
