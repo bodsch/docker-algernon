@@ -79,7 +79,7 @@ RUN \
 
 # ---------------------------------------------------------------------------------------
 
-FROM alpine:3.10
+FROM alpine:3.11
 
 COPY --from=builder /etc/profile.d/algernon.sh /etc/profile.d/algernon.sh
 COPY --from=builder /tmp/algernon/algernon     /usr/bin/algernon
