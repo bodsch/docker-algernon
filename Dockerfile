@@ -56,8 +56,11 @@ RUN \
 RUN \
   export version=$(grep -i version main.go | head -1 | cut -d' ' -f4 | cut -d'"' -f1)
 
+#RUN \
+#  go help module-auth
+
 RUN \
-  go help module-auth
+  echo -e "\n  $(go version) \n"
 
 # hadolint ignore=DL4006,SC2143
 RUN \
@@ -65,6 +68,7 @@ RUN \
     echo "run go build ..." && \
     go build ; \
   else \
+    go mod vendor && \
     go mod verify && \
     go build -mod=vendor ; \
   fi
