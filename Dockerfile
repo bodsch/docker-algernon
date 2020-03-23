@@ -31,7 +31,7 @@ RUN \
   echo "export BUILD_TYPE=${BUILD_TYPE}" >> /etc/profile.d/algernon.sh
 
 RUN \
-  echo " => go version $(go version)"
+  echo " => $(go version)"
 
 WORKDIR ${GOPATH}
 
@@ -56,22 +56,9 @@ RUN \
 RUN \
   export version=$(grep -i version main.go | head -1 | cut -d' ' -f4 | cut -d'"' -f1)
 
-#RUN \
-#  go help module-auth
-
-RUN \
-  echo -e "\n  $(go version) \n"
-
 # hadolint ignore=DL4006,SC2143
 RUN \
-  if [ "$(go version | grep -q '1.10')" ] ; then \
-    echo "run go build ..." && \
-    go build ; \
-  else \
-    go mod vendor && \
-    go mod verify && \
-    go build -mod=vendor ; \
-  fi
+  go build -mod=vendor
 
 RUN \
   upx ${GOPATH}/algernon/algernon
